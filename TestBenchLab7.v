@@ -7,7 +7,7 @@ module MIPS_Testbench();
   parameter N = 10;
   reg[31:0] expected[N:1];
 
-  wire[31:0] Mem_Bus_Wire;
+  wire[31:0] Mem_Bus;
   wire[6:0] Address, Address_Mux;
   reg[6:0] AddressTB;
   wire WE_Mux, CS_Mux;
@@ -16,8 +16,8 @@ module MIPS_Testbench();
   wire [7:0]regout1;//added
   integer i;
 
-  MIPS CPU(HALT,CLK, rst, CS, WE, Address, Mem_Bus_Wire,regout1); //added regout1
-  Memory MEM(CS_Mux, WE_Mux, CLK, Address_Mux, Mem_Bus_Wire);
+  MIPS CPU(HALT,CLK, rst, CS, WE, Address, Mem_Bus,regout1); //added regout1
+  Memory MEM(CS_Mux, WE_Mux, CLK, Address_Mux, Mem_Bus);
 
   assign Address_Mux = (init)? AddressTB : Address;
   assign WE_Mux = (init)? WE_TB : WE;
@@ -53,10 +53,10 @@ module MIPS_Testbench();
     for(i = 1; i <= N; i = i + 1) begin
       @(posedge WE);  // When a store word is executed
       @(posedge CLK);
-      if (Mem_Bus_Wire != expected[i])
-        $display("Output mismatch: got %d, expect %d", Mem_Bus_Wire, expected[i]);
-      
-      else $display("Correct: got %d, expect %d", Mem_Bus_Wire, expected[i]);
+      if (Mem_Bus != expected[i])
+        $display("Output mismatch: got %d, expect %d", Mem_Bus, expected[i]);
+
+      else $display("Correct: got %d, expect %d", Mem_Bus, expected[i]);
 	end
     $display("Testing Finished:");
     $stop;

@@ -41,8 +41,8 @@ module Memory(CS, WE, CLK, ADDR, Mem_Bus);
           RAM[i] = 32'b00000000000000000000000000000000;    //initialize all memory to 0
       end
     /* Write your Verilog-Text IO code here */
-    $readmemh("MIPS.txt", RAM);
-    //$readmemh("LEDs.txt", RAM);
+    //$readmemh("MIPS.txt", RAM);
+    $readmemh("LEDs.txt", RAM);
   end
 
   assign Mem_Bus = ((CS == 1'b0) || (WE == 1'b1)) ? 32'bZ : data_out;

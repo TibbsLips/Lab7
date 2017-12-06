@@ -16,7 +16,7 @@ module MIPS_Testbench();
   wire [7:0]regout1;//added
   integer i;
 
-  MIPS CPU(CLK, rst, CS, WE, Address, Mem_Bus_Wire,regout1,HALT); //added regout1
+  MIPS CPU(HALT,CLK, rst, CS, WE, Address, Mem_Bus_Wire,regout1); //added regout1
   Memory MEM(CS_Mux, WE_Mux, CLK, Address_Mux, Mem_Bus_Wire);
 
   assign Address_Mux = (init)? AddressTB : Address;

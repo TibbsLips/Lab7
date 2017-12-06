@@ -27,7 +27,7 @@ module MIPS_Testbench();
     #10 CLK = ~CLK;
 
   initial begin
-    HALT = 0;
+    HALT = 0; //added
     expected[1]  = 32'h00000006;
     expected[2]  = 32'h00000012;
     expected[3]  = 32'h00000018;

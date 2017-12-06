@@ -10,12 +10,11 @@ module Complete_MIPS(CLK, RST, HALT, led);//, A_Out, D_Out);
   wire [6:0] ADDR;
   wire [31:0] Mem_Bus;
   wire slowClk;
-// introduce HALT instruction
-// set slow clk
-  clockDivider slow(CLK, slowClk);
-  MIPS CPU(slowClk, RST, CS, WE, ADDR, Mem_Bus, led, HALT);
-  Memory MEM(CS, WE, slowClk, ADDR, Mem_Bus);
 
+  clockDivider s(CLK, slowClk);
+  MIPS c(HALT,slowClk, RST, CS, WE, ADDR, Mem_Bus, led);
+  Memory m(CS, WE, slowClk, ADDR, Mem_Bus);
+//
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,8 +41,8 @@ module Memory(CS, WE, CLK, ADDR, Mem_Bus);
           RAM[i] = 32'b00000000000000000000000000000000;    //initialize all memory to 0
       end
     /* Write your Verilog-Text IO code here */
-    //$readmemh("MIPS.txt", RAM);
-    $readmemh("LEDs.txt", RAM);
+    $readmemh("MIPS.txt", RAM);
+    //$readmemh("LEDs.txt", RAM);
   end
 
   assign Mem_Bus = ((CS == 1'b0) || (WE == 1'b1)) ? 32'bZ : data_out;
@@ -64,7 +63,7 @@ endmodule
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-module REG(CLK, RegW, DR, SR1, SR2, Reg_In, ReadReg1, ReadReg2, RegOut1);
+module REG(CLK, RegW, DR, SR1, SR2, Reg_In, ReadReg1, ReadReg2, reg1lower);
   input CLK;
   input RegW;
   input [4:0] DR;
@@ -73,19 +72,19 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, ReadReg1, ReadReg2, RegOut1);
   input [31:0] Reg_In;
   output reg [31:0] ReadReg1;
   output reg [31:0] ReadReg2;
-  // added for led output
-  output [7:0] RegOut1;
+
+  output [7:0] reg1lower;
 
   reg [31:0] REG [0:31];
   integer i;
 
-// assign REG[1] to leds
+
   initial begin
     ReadReg1 = 0;
     ReadReg2 = 0;
   end
 
-  assign RegOut1 = REG[1][7:0];
+  assign reg1lower = REG[1][7:0];
 
   always @(posedge CLK)
   begin
@@ -111,13 +110,13 @@ endmodule
 `define f_code instr[5:0]
 `define numshift instr[10:6]
 
-module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus, regout1, HALT);
+module MIPS (HALT,CLK, RST, CS, WE, ADDR, Mem_Bus, reg1lower);
   input CLK, RST, HALT;
   output reg CS, WE;
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
   // added for reg output
-  output[7:0] regout1;
+  output[7:0] reg1lower;
 
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
@@ -168,7 +167,7 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus, regout1, HALT);
 
   //drive memory bus only during writes
   assign ADDR = (fetchDorI)? pc : alu_result_save[6:0]; //ADDR Mux
-  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, readreg1, readreg2, regout1);
+  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, readreg1, readreg2, reg1lower);
 
   initial begin
     op = and1; opsave = and1;
